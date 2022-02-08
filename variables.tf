@@ -5,20 +5,32 @@ variable "qemu_uri" {
   default     = "qemu:///system"
 }
 
-variable "domain_name" {
-  description = "Local domain"
-  type        = string
-  default     = "home"
+variable "net_config" {
+  description = "lLcal network config"
+  default = {
+    domain         = "debian-net"
+    search_domains = ["debian-net"]
+    subnets        = ["10.1.2.0/24"]
+    gateway        = "10.1.2.1"
+    dns_servers    = ["10.1.2.1"]
+  }
 }
 
-variable "debian_cluster_size" {
+variable "ips" {
+  description = "List of static IPs"
+  type        = map(string)
+  default = {
+    0 = "10.1.2.10/24"
+    1 = "10.1.2.11/24"
+    2 = "10.1.2.12/24"
+    3 = "10.1.2.13/24"
+    4 = "10.1.2.14/24"
+    5 = "10.1.2.15/24"
+  }
+}
+
+variable "cluster_size" {
   description = "Number of Debian instances to provision."
-  type        = number
-  default     = 2
-}
-
-variable "ubuntu_cluster_size" {
-  description = "Number of Ubuntu instances to provision."
   type        = number
   default     = 2
 }
@@ -27,19 +39,9 @@ variable "debian_vm" {
   description = "Debian VM hardware specs"
   type        = map(number)
   default = {
-    cores  = 4,
-    memory = 4096,
-    disk   = 5368709120
-  }
-}
-
-variable "ubuntu_vm" {
-  description = "Ubuntu VM hardware specs"
-  type        = map(number)
-  default = {
-    cores  = 4,
-    memory = 4096,
-    disk   = 5368709120
+    cores     = 4
+    memory    = 4096
+    disk_size = 5368709120
   }
 }
 
