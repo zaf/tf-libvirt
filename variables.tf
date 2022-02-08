@@ -5,9 +5,20 @@ variable "qemu_uri" {
   default     = "qemu:///system"
 }
 
-variable "net_config" {
-  description = "lLcal network config"
+variable "debian_cloud_image" {
+  description = "VM base image"
   default = {
+    #source = "https://cloud.debian.org/images/cloud/bullseye/latest/debian-11-genericcloud-amd64.qcow2"
+    source = "/var/lib/libvirt/images/debian-11-genericcloud-amd64.qcow2"
+    type   = "qcow2"
+  }
+}
+
+variable "net_config" {
+  description = "local network config"
+  default = {
+    name           = "debian-network"
+    mode           = "nat"
     domain         = "debian-net"
     search_domains = ["debian-net"]
     subnets        = ["10.1.2.0/24"]
@@ -45,6 +56,15 @@ variable "debian_vm" {
   }
 }
 
+variable "os_packages" {
+  description = "OS packages to install"
+  type        = list(string)
+  default = [
+    "apt-transport-https",
+    "docker.io"
+  ]
+}
+
 # User defined variables found in [user-name].tfvars
 variable "user" {
   description = "The name of the user to create"
@@ -58,8 +78,8 @@ variable "password" {
   default     = ""
 }
 
-variable "ssh_key" {
-  description = "Users public SSH key"
-  type        = string
-  default     = ""
+variable "ssh_keys" {
+  description = "Users public SSH keys"
+  type        = list(string)
+  default     = [""]
 }

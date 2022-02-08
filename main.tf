@@ -14,8 +14,8 @@ provider "libvirt" {
 
 # Network
 resource "libvirt_network" "debian_network" {
-  name      = "debian_network"
-  mode      = "nat"
+  name      = var.net_config["name"]
+  mode      = var.net_config["mode"]
   domain    = var.net_config["domain"]
   addresses = var.net_config["subnets"]
   dns {
@@ -25,10 +25,9 @@ resource "libvirt_network" "debian_network" {
 
 # Disk images
 resource "libvirt_volume" "debian_base" {
-  name = "debian_base"
-  #source = "https://cloud.debian.org/images/cloud/bullseye/latest/debian-11-genericcloud-amd64.qcow2"
-  source = "/var/lib/libvirt/images/debian-11-genericcloud-amd64.qcow2"
-  format = "qcow2"
+  name   = "debian_base"
+  source = var.debian_cloud_image["source"]
+  format = var.debian_cloud_image["type"]
 }
 
 resource "libvirt_volume" "debian_disk" {
@@ -43,11 +42,12 @@ data "template_file" "debian_provision" {
   count    = var.cluster_size
   template = file("${path.module}/cloud_init_debian.cfg")
   vars = {
-    user     = var.user
-    password = var.password
-    ssh_key  = var.ssh_key
-    hostname = "debian-${count.index}"
-    fqdn     = "debian-${count.index}.${var.net_config["domain"]}"
+    hostname    = "debian-${count.index}"
+    fqdn        = "debian-${count.index}.${var.net_config["domain"]}"
+    user        = var.user
+    password    = var.password
+    ssh_keys    = jsonencode(var.ssh_keys)
+    os_packages = jsonencode(var.os_packages)
   }
 }
 
@@ -70,7 +70,7 @@ resource "libvirt_cloudinit_disk" "debian_init" {
 }
 
 # VMs
-resource "libvirt_domain" "debian" {
+resource "libvirt_domain" "debian_vm" {
   count   = var.cluster_size
   name    = "debian-${count.index}"
   arch    = "x86_64"
@@ -83,7 +83,7 @@ resource "libvirt_domain" "debian" {
   cloudinit = element(libvirt_cloudinit_disk.debian_init.*.id, count.index)
 
   network_interface {
-    network_name   = "debian_network"
+    network_name   = var.net_config["name"]
     wait_for_lease = true
   }
 
