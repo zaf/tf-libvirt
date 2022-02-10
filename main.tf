@@ -18,9 +18,7 @@ resource "libvirt_network" "debian_network" {
   mode      = var.net_config["mode"]
   domain    = var.net_config["domain"]
   addresses = var.net_config["subnets"]
-  dns {
-    enabled = true
-  }
+  dns { enabled = true }
 }
 
 # Disk images
@@ -31,9 +29,9 @@ resource "libvirt_volume" "debian_base" {
 }
 
 resource "libvirt_volume" "debian_disk" {
-  count = var.cluster_size
-  name  = "debian_disk_${count.index}"
-  #size           = var.debian_vm["disk_size"]
+  count          = var.cluster_size
+  name           = "debian_disk_${count.index}"
+  size           = var.debian_vm["disk_size"]
   base_volume_id = libvirt_volume.debian_base.id
 }
 
@@ -55,7 +53,7 @@ data "template_file" "debian_network_config" {
   count    = var.cluster_size
   template = file("${path.module}/network_config_debian.cfg")
   vars = {
-    ip             = "${lookup(var.ips, count.index)}"
+    ip             = var.ips[count.index]
     gateway        = var.net_config["gateway"]
     search_domains = jsonencode(var.net_config["search_domains"])
     dns_servers    = jsonencode(var.net_config["dns_servers"])
@@ -73,12 +71,13 @@ resource "libvirt_cloudinit_disk" "debian_init" {
 resource "libvirt_domain" "debian_vm" {
   count   = var.cluster_size
   name    = "debian-${count.index}"
+  running = true
+
   arch    = "x86_64"
   machine = "pc-i440fx-6.2"
-  cpu { mode = "host-model" }
   vcpu    = var.debian_vm["cores"]
   memory  = var.debian_vm["memory"]
-  running = true
+  cpu { mode = "host-model" }
 
   cloudinit = element(libvirt_cloudinit_disk.debian_init.*.id, count.index)
 
@@ -87,7 +86,11 @@ resource "libvirt_domain" "debian_vm" {
     wait_for_lease = true
   }
 
-  disk {
-    volume_id = element(libvirt_volume.debian_disk.*.id, count.index)
+  disk { volume_id = element(libvirt_volume.debian_disk.*.id, count.index) }
+
+  console {
+    type        = "pty"
+    target_port = "0"
+    target_type = "serial"
   }
 }
