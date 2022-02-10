@@ -73,20 +73,18 @@ resource "libvirt_domain" "debian_vm" {
   name    = "debian-${count.index}"
   running = true
 
-  arch    = "x86_64"
-  machine = "pc-i440fx-6.2"
-  vcpu    = var.debian_vm["cores"]
-  memory  = var.debian_vm["memory"]
+  vcpu   = var.debian_vm["cores"]
+  memory = var.debian_vm["memory"]
   cpu { mode = "host-model" }
 
   cloudinit = element(libvirt_cloudinit_disk.debian_init.*.id, count.index)
+
+  disk { volume_id = element(libvirt_volume.debian_disk.*.id, count.index) }
 
   network_interface {
     network_name   = var.net_config["name"]
     wait_for_lease = true
   }
-
-  disk { volume_id = element(libvirt_volume.debian_disk.*.id, count.index) }
 
   console {
     type        = "pty"
