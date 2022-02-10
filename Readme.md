@@ -1,1 +1,1 @@
-Provision Debian based VMs using Terraform
+Provision a k8s cluster using Terraform

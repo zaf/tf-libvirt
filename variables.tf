@@ -62,7 +62,10 @@ variable "os_packages" {
   type        = list(string)
   default = [
     "apt-transport-https",
-    "docker.io"
+    "docker.io",
+    "kubelet",
+    "kubeadm",
+    "kubectl"
   ]
 }
 
