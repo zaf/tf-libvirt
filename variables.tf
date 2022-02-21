@@ -44,7 +44,7 @@ variable "ips" {
 variable "cluster_size" {
   description = "Number of Debian instances to provision."
   type        = number
-  default     = 2
+  default     = 3
 }
 
 variable "debian_vm" {
