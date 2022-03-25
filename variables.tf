@@ -8,36 +8,9 @@ variable "qemu_uri" {
 variable "debian_cloud_image" {
   description = "VM base image"
   default = {
-    #source = "https://cloud.debian.org/images/cloud/sid/daily/latest/debian-sid-genericcloud-amd64-daily.qcow2"
-    #source = "https://cloud.debian.org/images/cloud/bullseye/daily/latest/debian-11-genericcloud-amd64-daily.qcow2"
     source = "/var/lib/libvirt/images/debian-11-genericcloud-amd64-daily.qcow2"
-    type   = "qcow2"
-  }
-}
-
-variable "net_config" {
-  description = "local network config"
-  default = {
-    name           = "debian-network"
-    mode           = "nat"
-    domain         = "debian-net"
-    search_domains = ["debian-net"]
-    subnets        = ["10.1.2.0/24"]
-    gateway        = "10.1.2.1"
-    dns_servers    = ["10.1.2.1"]
-  }
-}
-
-variable "ips" {
-  description = "List of static IPs"
-  type        = map(string)
-  default = {
-    0 = "10.1.2.10/24"
-    1 = "10.1.2.11/24"
-    2 = "10.1.2.12/24"
-    3 = "10.1.2.13/24"
-    4 = "10.1.2.14/24"
-    5 = "10.1.2.15/24"
+    #source = "https://cloud.debian.org/images/cloud/bullseye/daily/latest/debian-11-genericcloud-amd64-daily.qcow2"
+    type = "qcow2"
   }
 }
 
@@ -67,6 +40,21 @@ variable "os_packages" {
     "kubeadm",
     "kubectl"
   ]
+}
+
+variable "net_config" {
+  description = "local network config"
+  default = {
+    name           = "debian-network"
+    mode           = "nat"
+    domain         = "debian-net"
+    search_domains = ["debian-net"]
+    subnets        = ["10.1.2.0/24"]
+    gateway        = "10.1.2.1"
+    dns_servers    = ["10.1.2.1"]
+    cidr           = "24"
+    start_addr     = "10"
+  }
 }
 
 # User defined variables found in [user-name].tfvars

@@ -1,0 +1,7 @@
+[control-plane]
+${control}
+
+[nodes]
+%{ for ip in nodes ~}
+${ip}
+%{ endfor ~}

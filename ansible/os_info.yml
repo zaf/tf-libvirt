@@ -1,0 +1,13 @@
+---
+
+- hosts: all
+  gather_facts: yes
+  become: false
+
+  tasks:
+  - name: System details
+    debug: msg="{{ item }}"
+    with_items: 
+    - "{{ ansible_kernel }}"
+    - "{{ ansible_architecture }}"
+    - "{{ ansible_lsb }}"
