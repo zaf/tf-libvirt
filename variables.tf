@@ -8,9 +8,9 @@ variable "qemu_uri" {
 variable "debian_cloud_image" {
   description = "VM base image"
   default = {
-    source = "/var/lib/libvirt/images/debian-11-genericcloud-amd64-daily.qcow2"
-    #source = "https://cloud.debian.org/images/cloud/bullseye/daily/latest/debian-11-genericcloud-amd64-daily.qcow2"
-    type = "qcow2"
+    #source = "/var/lib/libvirt/images/debian-11-genericcloud-amd64-daily.qcow2"
+    source = "https://cloud.debian.org/images/cloud/bullseye/daily/latest/debian-11-genericcloud-amd64-daily.qcow2"
+    type   = "qcow2"
   }
 }
 

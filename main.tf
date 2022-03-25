@@ -49,7 +49,6 @@ data "template_file" "debian_provision" {
     user        = var.user
     password    = var.password
     ssh_keys    = jsonencode(var.ssh_keys)
-    k8s_key     = filebase64("${path.module}/k8s-apt-key.gpg")
     os_packages = jsonencode(var.os_packages)
   }
 }
