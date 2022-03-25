@@ -8,25 +8,9 @@ variable "qemu_uri" {
 variable "debian_cloud_image" {
   description = "VM base image"
   default = {
-    #source = "https://cloud.debian.org/images/cloud/sid/daily/latest/debian-sid-genericcloud-amd64-daily.qcow2"
-    source = "https://cloud.debian.org/images/cloud/bullseye/daily/latest/debian-11-genericcloud-amd64-daily.qcow2"
     #source = "/var/lib/libvirt/images/debian-11-genericcloud-amd64-daily.qcow2"
+    source = "https://cloud.debian.org/images/cloud/bullseye/daily/latest/debian-11-genericcloud-amd64-daily.qcow2"
     type   = "qcow2"
-  }
-}
-
-variable "net_config" {
-  description = "local network config"
-  default = {
-    name           = "debian-network"
-    mode           = "nat"
-    domain         = "debian-net"
-    search_domains = ["debian-net"]
-    subnets        = ["10.1.2.0/24"]
-    gateway        = "10.1.2.1"
-    dns_servers    = ["10.1.2.1"]
-    cidr           = "24"
-    start_addr     = "10"
   }
 }
 
@@ -53,6 +37,21 @@ variable "os_packages" {
     "apt-transport-https",
     "docker.io"
   ]
+}
+
+variable "net_config" {
+  description = "local network config"
+  default = {
+    name           = "debian-network"
+    mode           = "nat"
+    domain         = "debian-net"
+    search_domains = ["debian-net"]
+    subnets        = ["10.1.2.0/24"]
+    gateway        = "10.1.2.1"
+    dns_servers    = ["10.1.2.1"]
+    cidr           = "24"
+    start_addr     = "10"
+  }
 }
 
 # User defined variables found in [user-name].tfvars
