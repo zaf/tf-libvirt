@@ -25,19 +25,8 @@ variable "net_config" {
     subnets        = ["10.1.2.0/24"]
     gateway        = "10.1.2.1"
     dns_servers    = ["10.1.2.1"]
-  }
-}
-
-variable "ips" {
-  description = "List of static IPs"
-  type        = map(string)
-  default = {
-    0 = "10.1.2.10/24"
-    1 = "10.1.2.11/24"
-    2 = "10.1.2.12/24"
-    3 = "10.1.2.13/24"
-    4 = "10.1.2.14/24"
-    5 = "10.1.2.15/24"
+    cidr           = "24"
+    start_addr     = "10"
   }
 }
 

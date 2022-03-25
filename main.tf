@@ -12,6 +12,10 @@ provider "libvirt" {
   uri = var.qemu_uri
 }
 
+locals {
+  ips = [for i in range(var.cluster_size) : cidrhost(var.net_config["subnets"][0], var.net_config["start_addr"] + i)]
+}
+
 # Network
 resource "libvirt_network" "debian_network" {
   name      = var.net_config["name"]
@@ -38,7 +42,7 @@ resource "libvirt_volume" "debian_disk" {
 # cloud-init provisioning
 data "template_file" "debian_provision" {
   count    = var.cluster_size
-  template = file("${path.module}/cloud_init_debian.cfg")
+  template = file("${path.module}/templates/cloud_init/cloud_init_debian.cfg")
   vars = {
     hostname    = "debian-${count.index}"
     fqdn        = "debian-${count.index}.${var.net_config["domain"]}"
@@ -51,9 +55,9 @@ data "template_file" "debian_provision" {
 
 data "template_file" "debian_network_config" {
   count    = var.cluster_size
-  template = file("${path.module}/network_config_debian.cfg")
+  template = file("${path.module}/templates/cloud_init/network_config_debian.cfg")
   vars = {
-    ip             = var.ips[count.index]
+    ip             = "${local.ips["${count.index}"]}/${var.net_config["cidr"]}"
     gateway        = var.net_config["gateway"]
     search_domains = jsonencode(var.net_config["search_domains"])
     dns_servers    = jsonencode(var.net_config["dns_servers"])
@@ -82,13 +86,29 @@ resource "libvirt_domain" "debian_vm" {
   disk { volume_id = element(libvirt_volume.debian_disk.*.id, count.index) }
 
   network_interface {
-    network_name   = var.net_config["name"]
-    wait_for_lease = true
+    network_name = var.net_config["name"]
+    addresses    = [local.ips["${count.index}"]]
+    hostname     = "debian-${count.index}"
   }
 
   console {
     type        = "pty"
     target_port = "0"
     target_type = "serial"
+  }
+}
+
+# Generate ansible inventory
+resource "local_file" "hosts" {
+  content         = templatefile("${path.module}/templates/ansible/inventory.tftpl", { hosts = local.ips })
+  file_permission = "0644"
+  filename        = "ansible/inventory/hosts"
+}
+
+# List VMs and their IPs
+output "debian_ip_addresses" {
+  value = {
+    for vm in libvirt_domain.debian_vm :
+    vm.name => vm.network_interface[0].addresses[0]
   }
 }

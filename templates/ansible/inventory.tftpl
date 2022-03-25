@@ -1,0 +1,4 @@
+[debian_vms]
+%{ for ip in hosts ~}
+${ip}
+%{ endfor ~}
