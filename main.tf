@@ -3,7 +3,7 @@ terraform {
   required_providers {
     libvirt = {
       source  = "dmacvicar/libvirt"
-      version = ">= 0.7.0"
+      version = ">= 0.7.1"
     }
   }
 }
@@ -44,8 +44,8 @@ data "template_file" "debian_provision" {
   count    = var.cluster_size
   template = file("${path.module}/templates/cloud_init/cloud_init_debian.cfg")
   vars = {
-    hostname    = "debian-${count.index}"
-    fqdn        = "debian-${count.index}.${var.net_config["domain"]}"
+    hostname    = "${var.vmname}-${count.index}"
+    fqdn        = "${var.vmname}-${count.index}.${var.net_config["domain"]}"
     user        = var.user
     password    = var.password
     ssh_keys    = jsonencode(var.ssh_keys)
@@ -74,7 +74,7 @@ resource "libvirt_cloudinit_disk" "debian_init" {
 # VMs
 resource "libvirt_domain" "debian_vm" {
   count   = var.cluster_size
-  name    = "debian-${count.index}"
+  name    = "${var.vmname}-${count.index}"
   running = true
 
   vcpu   = var.debian_vm["cores"]
@@ -88,7 +88,7 @@ resource "libvirt_domain" "debian_vm" {
   network_interface {
     network_name = var.net_config["name"]
     addresses    = [local.ips["${count.index}"]]
-    hostname     = "debian-${count.index}"
+    hostname     = "${var.vmname}-${count.index}"
   }
 
   console {

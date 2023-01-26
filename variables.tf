@@ -56,6 +56,12 @@ variable "net_config" {
 }
 
 # User defined variables found in [user-name].tfvars
+variable "vmname" {
+  description = "The VM name prefix"
+  type        = string
+  default     = ""
+}
+
 variable "user" {
   description = "The name of the user to create"
   type        = string
