@@ -1,6 +1,6 @@
 ## Provision Debian based VMs using Terraform
 
-Create a `user.tfvars` file containing you user details (name, password, SSH key).
+Create a `user.tfvars` file containing your user details (name, password, SSH key).
 
 Define the number, the hardware specs and the network config of the VMs in `variables.tf`
 
