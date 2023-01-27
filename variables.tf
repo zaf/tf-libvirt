@@ -7,6 +7,7 @@ variable "qemu_uri" {
 
 variable "debian_cloud_image" {
   description = "VM base image"
+  type        = map(string)
   default = {
     #source = "/var/lib/libvirt/images/debian-11-genericcloud-amd64-daily.qcow2"
     #source = "https://cloud.debian.org/images/cloud/sid/daily/latest/debian-sid-genericcloud-amd64-daily.qcow2"
@@ -62,20 +63,15 @@ variable "vmname" {
   default     = ""
 }
 
-variable "user" {
-  description = "The name of the user to create"
-  type        = string
-  default     = ""
-}
-
-variable "password" {
-  description = "Users password hash"
-  type        = string
-  default     = ""
-}
-
-variable "ssh_keys" {
-  description = "Users public SSH keys"
-  type        = list(string)
-  default     = [""]
+variable "users" {
+  description = "Users to create"
+  type        = list(any)
+  default = [
+    {
+      name     = ""
+      password = ""
+      ssh_keys = [""]
+      sudo     = false
+    }
+  ]
 }

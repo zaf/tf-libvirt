@@ -46,9 +46,7 @@ data "template_file" "debian_provision" {
   vars = {
     hostname    = "${var.vmname}-${count.index}"
     fqdn        = "${var.vmname}-${count.index}.${var.net_config["domain"]}"
-    user        = var.user
-    password    = var.password
-    ssh_keys    = jsonencode(var.ssh_keys)
+    users       = var.users
     os_packages = jsonencode(var.os_packages)
   }
 }
