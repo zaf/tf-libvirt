@@ -14,8 +14,8 @@ users = [
   },
   {
     name     = "alice"
-    password = "$y$j9T$XrK5Wzz0aaYIgA23seF5q.$sqdAtK9IXxfhL1Wlo7TN7uvVNrWhZUha//D5H15V2/2"
-    ssh_keys = ""
+    password = ""
+    ssh_keys = "[\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINwBLZMawszW1s1FYdpqU1ermQOwwvv0p6SFvW1EXTYx alice\"]"
     sudo     = true
     shell    = "/bin/bash"
   }

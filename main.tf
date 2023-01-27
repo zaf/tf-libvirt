@@ -42,8 +42,7 @@ resource "libvirt_volume" "debian_disk" {
 resource "libvirt_cloudinit_disk" "debian_init" {
   count = var.cluster_size
   name  = "debian-init-${count.index}.iso"
-  user_data = templatefile(
-    "${path.module}/templates/cloud_init/cloud_init_debian.cfg",
+  user_data = templatefile("${path.module}/templates/cloud_init/cloud_init_debian.cfg",
     {
       hostname    = "${var.vmname}-${count.index}",
       fqdn        = "${var.vmname}-${count.index}.${var.net_config["domain"]}",
@@ -51,8 +50,7 @@ resource "libvirt_cloudinit_disk" "debian_init" {
       os_packages = jsonencode(var.os_packages)
     }
   )
-  network_config = templatefile(
-    "${path.module}/templates/cloud_init/network_config_debian.cfg",
+  network_config = templatefile("${path.module}/templates/cloud_init/network_config_debian.cfg",
     {
       ip             = "${local.ips["${count.index}"]}/${var.net_config["cidr"]}",
       gateway        = var.net_config["gateway"],
