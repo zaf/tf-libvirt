@@ -17,7 +17,7 @@ locals {
 }
 
 # Network
-resource "libvirt_network" "debian_network" {
+resource "libvirt_network" "vm_network" {
   name      = var.net_config["name"]
   mode      = var.net_config["mode"]
   domain    = var.net_config["domain"]
@@ -26,24 +26,24 @@ resource "libvirt_network" "debian_network" {
 }
 
 # Disk images
-resource "libvirt_volume" "debian_base" {
-  name   = "debian_base"
-  source = var.debian_cloud_image["source"]
-  format = var.debian_cloud_image["type"]
+resource "libvirt_volume" "vm_base" {
+  name   = "${var.vmname}_base"
+  source = var.cloud_image["source"]
+  format = var.cloud_image["type"]
 }
 
-resource "libvirt_volume" "debian_disk" {
+resource "libvirt_volume" "vm_disk" {
   count          = var.cluster_size
-  name           = "debian_disk_${count.index}"
-  size           = var.debian_vm["disk_size"]
-  base_volume_id = libvirt_volume.debian_base.id
+  name           = "${var.vmname}_disk_${count.index}"
+  size           = var.vm["disk_size"]
+  base_volume_id = libvirt_volume.vm_base.id
 }
 
 # cloud-init provisioning
-resource "libvirt_cloudinit_disk" "debian_init" {
+resource "libvirt_cloudinit_disk" "vm_init" {
   count = var.cluster_size
-  name  = "debian-init-${count.index}.iso"
-  user_data = templatefile("${path.module}/templates/cloud_init/cloud_init_debian.cfg",
+  name  = "${var.vmname}-init-${count.index}.iso"
+  user_data = templatefile("${path.module}/templates/cloud_init/cloud_init.cfg",
     {
       hostname    = "${var.vmname}-${count.index}",
       fqdn        = "${var.vmname}-${count.index}.${var.net_config["domain"]}",
@@ -51,7 +51,7 @@ resource "libvirt_cloudinit_disk" "debian_init" {
       os_packages = jsonencode(var.os_packages)
     }
   )
-  network_config = templatefile("${path.module}/templates/cloud_init/network_config_debian.cfg",
+  network_config = templatefile("${path.module}/templates/cloud_init/network_config.cfg",
     {
       ip             = "${local.ips["${count.index}"]}/${var.net_config["cidr"]}",
       gateway        = var.net_config["gateway"],
@@ -62,18 +62,18 @@ resource "libvirt_cloudinit_disk" "debian_init" {
 }
 
 # VMs
-resource "libvirt_domain" "debian_vm" {
+resource "libvirt_domain" "vm" {
   count   = var.cluster_size
   name    = "${var.vmname}-${count.index}"
   running = true
 
-  vcpu   = var.debian_vm["cores"]
-  memory = var.debian_vm["memory"]
+  vcpu   = var.vm["cores"]
+  memory = var.vm["memory"]
   cpu { mode = "host-model" }
 
-  cloudinit = element(libvirt_cloudinit_disk.debian_init.*.id, count.index)
+  cloudinit = element("libvirt_cloudinit_disk.${var.vmname}_init.*.id, count.index")
 
-  disk { volume_id = element(libvirt_volume.debian_disk.*.id, count.index) }
+  disk { volume_id = element("libvirt_volume.${var.vmname}_disk.*.id, count.index") }
 
   network_interface {
     network_name = var.net_config["name"]
@@ -96,9 +96,9 @@ resource "local_file" "hosts" {
 }
 
 # List VMs and their IPs
-output "debian_ip_addresses" {
+output "ip_addresses" {
   value = {
-    for vm in libvirt_domain.debian_vm :
+    for vm in libvirt_domain.vm :
     vm.name => vm.network_interface[0].addresses[0]
   }
 }
