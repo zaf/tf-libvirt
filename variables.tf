@@ -70,7 +70,8 @@ variable "users" {
     {
       name     = ""
       password = ""
-      ssh_keys = [""]
+      ssh_keys = ""
+      shell    = ""
       sudo     = false
     }
   ]
