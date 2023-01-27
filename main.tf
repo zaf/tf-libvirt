@@ -34,7 +34,7 @@ resource "libvirt_volume" "vm_base" {
 
 resource "libvirt_volume" "vm_disk" {
   count          = var.cluster_size
-  name           = "${var.vmname}_disk_${count.index}"
+  name           = "${var.vmname}_disk_${count.index}.${var.cloud_image["type"]}"
   size           = var.vm["disk_size"]
   base_volume_id = libvirt_volume.vm_base.id
 }
@@ -71,9 +71,9 @@ resource "libvirt_domain" "vm" {
   memory = var.vm["memory"]
   cpu { mode = "host-model" }
 
-  cloudinit = element("libvirt_cloudinit_disk.${var.vmname}_init.*.id, count.index")
+  cloudinit = libvirt_cloudinit_disk.vm_init[count.index].id
 
-  disk { volume_id = element("libvirt_volume.${var.vmname}_disk.*.id, count.index") }
+  disk { volume_id = libvirt_volume.vm_disk[count.index].id }
 
   network_interface {
     network_name = var.net_config["name"]
