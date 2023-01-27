@@ -39,6 +39,7 @@ resource "libvirt_volume" "debian_disk" {
   base_volume_id = libvirt_volume.debian_base.id
 }
 
+# cloud-init provisioning
 resource "libvirt_cloudinit_disk" "debian_init" {
   count = var.cluster_size
   name  = "debian-init-${count.index}.iso"
