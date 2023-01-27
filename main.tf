@@ -39,10 +39,10 @@ resource "libvirt_volume" "debian_disk" {
   base_volume_id = libvirt_volume.debian_base.id
 }
 
-# cloud-init provisioning
-data "template_file" "debian_provision" {
+resource "libvirt_cloudinit_disk" "debian_init" {
   count = var.cluster_size
-  templ = templatefile(
+  name  = "debian-init-${count.index}.iso"
+  user_data = templatefile(
     "${path.module}/templates/cloud_init/cloud_init_debian.cfg",
     {
       hostname    = "${var.vmname}-${count.index}",
@@ -51,24 +51,15 @@ data "template_file" "debian_provision" {
       os_packages = jsonencode(var.os_packages)
     }
   )
-}
-
-data "template_file" "debian_network_config" {
-  count    = var.cluster_size
-  template = file("${path.module}/templates/cloud_init/network_config_debian.cfg")
-  vars = {
-    ip             = "${local.ips["${count.index}"]}/${var.net_config["cidr"]}"
-    gateway        = var.net_config["gateway"]
-    search_domains = jsonencode(var.net_config["search_domains"])
-    dns_servers    = jsonencode(var.net_config["dns_servers"])
-  }
-}
-
-resource "libvirt_cloudinit_disk" "debian_init" {
-  count          = var.cluster_size
-  name           = "debian-init-${count.index}.iso"
-  user_data      = data.template_file.debian_provision[count.index].templ
-  network_config = data.template_file.debian_network_config[count.index].rendered
+  network_config = templatefile(
+    "${path.module}/templates/cloud_init/network_config_debian.cfg",
+    {
+      ip             = "${local.ips["${count.index}"]}/${var.net_config["cidr"]}",
+      gateway        = var.net_config["gateway"],
+      search_domains = jsonencode(var.net_config["search_domains"]),
+      dns_servers    = jsonencode(var.net_config["dns_servers"])
+    }
+  )
 }
 
 # VMs
