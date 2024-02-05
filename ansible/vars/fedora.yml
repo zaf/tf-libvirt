@@ -1,0 +1,15 @@
+dev_packages:
+  - docker
+  - screen
+  - htop
+  - iotop
+  - iftop
+  - git
+  - golang
+  - delve
+  - make
+  - cmake
+  - gdb
+  - strace
+  - ltrace
+  - mc

@@ -73,7 +73,7 @@ variable "os_packages" {
   description = "OS packages to install during VM creation"
   type        = list(string)
   default = [
-    "apt-transport-https",
+    "lsb-release",
     "qemu-guest-agent"
   ]
 }
