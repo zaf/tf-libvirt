@@ -1,0 +1,19 @@
+dev_packages:
+  - docker
+  - screen
+  - htop
+  - iotop
+  - iftop
+  - git
+  - go
+  - delve
+  - make
+  - cmake
+  - gdb
+  - strace
+  - ltrace
+  - mc
+  - vim
+  - bash
+  - coreutils
+  - alpine-sdk

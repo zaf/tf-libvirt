@@ -45,14 +45,18 @@ resource "libvirt_cloudinit_disk" "vm_init" {
   name  = "${var.vmname}-init-${count.index}.iso"
   user_data = templatefile("${path.module}/templates/cloud_init/cloud_init.cfg",
     {
-      hostname    = "${var.vmname}-${count.index}",
-      fqdn        = "${var.vmname}-${count.index}.${var.net_config["domain"]}",
-      users       = var.users,
-      os_packages = jsonencode(var.os_packages)
+      hostname       = "${var.vmname}-${count.index}",
+      fqdn           = "${var.vmname}-${count.index}.${var.net_config["domain"]}",
+      resolv_conf    = var.create_resolve_conf,
+      search_domains = jsonencode(var.net_config["search_domains"]),
+      dns_servers    = jsonencode(var.net_config["dns_servers"])
+      users          = var.users,
+      os_packages    = jsonencode(var.os_packages)
     }
   )
   network_config = templatefile("${path.module}/templates/cloud_init/network_config.cfg",
     {
+      interface      = var.interface_name,
       ip             = "${local.ips["${count.index}"]}/${var.net_config["cidr"]}",
       gateway        = var.net_config["gateway"],
       search_domains = jsonencode(var.net_config["search_domains"]),
@@ -69,7 +73,9 @@ resource "libvirt_domain" "vm" {
 
   vcpu   = var.vm["cores"]
   memory = var.vm["memory"]
-  cpu { mode = "host-model" }
+  arch   = var.vm["arch"]
+  type   = var.vm["type"]
+  cpu { mode = var.vm["cpu_mode"] }
 
   cloudinit = libvirt_cloudinit_disk.vm_init[count.index].id
 

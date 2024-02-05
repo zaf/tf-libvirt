@@ -15,39 +15,28 @@ variable "cloud_image" {
   description = "VM base image"
   type        = map(string)
   default = {
-    # Debian
-    #source = "https://cloud.debian.org/images/cloud/sid/daily/latest/debian-sid-genericcloud-amd64-daily.qcow2"
-    source = "https://cloud.debian.org/images/cloud/bullseye/daily/latest/debian-11-genericcloud-amd64-daily.qcow2"
+    source = "https://cloud.debian.org/images/cloud/bookworm/daily/latest/debian-12-genericcloud-amd64-daily.qcow2"
     type   = "qcow2"
-    # Ubuntu 22.04
-    #source = "https://cloud-images.ubuntu.com/daily/server/jammy/current/jammy-server-cloudimg-amd64.img"
-    #type   = "raw"
   }
 }
 
 variable "cluster_size" {
   description = "Number of VM instances to provision."
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "vm" {
   description = "VM hardware specs"
-  type        = map(number)
+  type        = map(any)
   default = {
+    arch      = "x86_64"
+    cpu_mode  = "host-passthrough"
+    type      = "kvm"
     cores     = 4
     memory    = 4096
     disk_size = 5368709120
   }
-}
-
-variable "os_packages" {
-  description = "OS packages to install during VM creation"
-  type        = list(string)
-  default = [
-    "apt-transport-https",
-    "docker.io"
-  ]
 }
 
 variable "net_config" {
@@ -65,7 +54,31 @@ variable "net_config" {
   }
 }
 
-# User defined variables found in [user-name].tfvars
+# Use ens3 for Debian based distros, eth0 for Alpine
+variable "interface_name" {
+  description = "Network interface name"
+  type        = string
+  default     = "ens3"
+}
+
+# Only needed for distros that dont generate /etc/resolv.conf from /etc/network/interfaces (e.g. Alpine)
+variable "create_resolve_conf" {
+  description = "Create /etc/resolv.conf"
+  type        = bool
+  default     = false
+}
+
+# OS packages to install
+variable "os_packages" {
+  description = "OS packages to install during VM creation"
+  type        = list(string)
+  default = [
+    "apt-transport-https",
+    "qemu-guest-agent"
+  ]
+}
+
+# User defined variables set in [users].tfvars
 variable "users" {
   description = "Users to create"
   type        = list(any)
@@ -73,8 +86,9 @@ variable "users" {
     {
       name     = ""
       password = ""
-      ssh_keys = ""
+      ssh_keys = []
       shell    = ""
+      groups   = []
       sudo     = false
     }
   ]
