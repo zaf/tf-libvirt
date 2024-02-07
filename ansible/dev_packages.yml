@@ -1,16 +1,16 @@
 ---
-
-- hosts: all
-  gather_facts: yes
+- name: Install dev tools
+  hosts: all
+  gather_facts: true
   become: true
 
   tasks:
-  - name: Load package list.
-    ansible.builtin.include_vars:
-      file: "vars/{{ ansible_lsb.id | lower }}.yml"
+    - name: Load package list
+      ansible.builtin.include_vars:
+        file: "vars/{{ ansible_lsb.id | lower }}.yml"
 
-  - name: Install dev packages
-    ansible.builtin.package:
-     name: "{{ item }}"
-     state: present
-    with_items: "{{ dev_packages }}"
+    - name: Install packages
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      with_items: "{{ dev_packages }}"
