@@ -23,6 +23,6 @@ users = [
 vmname = "ubuntu"
 
 cloud_image = {
-  source = "https://cloud-images.ubuntu.com/daily/server/jammy/current/jammy-server-cloudimg-amd64.img"
+  source = "https://cloud-images.ubuntu.com/daily/server/noble/current/noble-server-cloudimg-amd64.img"
   type   = "qcow2"
 }
