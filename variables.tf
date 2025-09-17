@@ -15,7 +15,7 @@ variable "cloud_image" {
   description = "VM base image"
   type        = map(string)
   default = {
-    source = "https://cloud.debian.org/images/cloud/bookworm/daily/latest/debian-12-genericcloud-amd64-daily.qcow2"
+    source = "https://cloud.debian.org/images/cloud/trixie/daily/latest/debian-13-genericcloud-amd64-daily.qcow2"
     type   = "qcow2"
   }
 }
